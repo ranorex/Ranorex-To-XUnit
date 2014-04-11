@@ -24,14 +24,8 @@
       </xsl:attribute>
       
       <xsl:attribute name="timestamp">
-        
-        <!-- The Ranorex Report will provide with a new field Isotimestamp starting with Version 5.0.2! -->
-        <!-- Meanwhile, the timestamp field is parsed to match ISO 08601-->
-        <!-- renzinger@ranorex.com -->
-        <!-- <xsl:value-of select="//activity/@isotimestamp"/>-->
-
         <!-- ISO8601_DATETIME_PATTERN -->
-        <xsl:value-of select="concat(substring(//activity/@timestamp, 7,4), '-', substring(//activity/@timestamp, 4,2), '-', substring(//activity/@timestamp, 1,2), 'T',substring(//activity/@timestamp, 12,9))"/> 
+        <xsl:value-of select="//activity/@isotimestamp"/>
       </xsl:attribute>
       
       <xsl:attribute name="tests">
@@ -50,44 +44,18 @@
             <xsl:value-of select="@modulename"/>
           </xsl:attribute>
 
-          <!-- The Ranorex Report will provide with a new field DurMS (duration in ms) starting with Version 5.0.2! -->
-          <!-- Meanwhile the duration is parsed (not entirely) from ms, s, m to seconds --> 
-          <!-- renzinger@ranorex.com
           <xsl:attribute name="time">
             <xsl:choose>
-              <xsl:when test="string-length(@durms) &lt; 4" >
-                <xsl:value-of select="substring(@durms, 1,1)"></xsl:value-of>.<xsl:value-of select="substring(@durms, 2,string-length(@durms)-1)"></xsl:value-of>e-0<xsl:value-of select="4-string-length(@durms)"></xsl:value-of>
+              <xsl:when test="string-length(@durationms) &lt; 4" >
+                <xsl:value-of select="substring(@durationms, 1,1)"></xsl:value-of>.<xsl:value-of select="substring(@durationms, 2,string-length(@durationms)-1)"></xsl:value-of>e-0<xsl:value-of select="4-string-length(@durationms)"></xsl:value-of>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:value-of select="substring(@durms, 1, string-length(@durms)-3)"></xsl:value-of>.<xsl:value-of select="substring(@durms, string-length(@durms)-2,3)"></xsl:value-of>
+                <xsl:value-of select="substring(@durationms, 1, string-length(@durationms)-3)"></xsl:value-of>.<xsl:value-of select="substring(@durationms, string-length(@durationms)-2,3)"></xsl:value-of>
               </xsl:otherwise>
             </xsl:choose>
-          </xsl:attribute> -->
-            
+          </xsl:attribute>            
 
-
-          <!-- Special Handling of Duration/Time -->
-          <!-- Convert to scientific notation for everything except for seconds -->
-          
-          <xsl:choose>
-            <xsl:when test="contains(@duration, 'ms')">
-              <xsl:attribute name="time">
-                <xsl:value-of select="substring(@duration, 1,1)"></xsl:value-of>.<xsl:value-of select="substring(@duration, 2,string-length(@duration)-3)"></xsl:value-of>e-0<xsl:value-of select="6-string-length(@duration)"></xsl:value-of>
-              </xsl:attribute>
-            </xsl:when>
-            <xsl:when test="contains(@duration, 's')">
-              <xsl:attribute name="time">
-                <xsl:value-of select="substring-before(@duration,'s')"/>
-              </xsl:attribute>
-            </xsl:when>
-            <xsl:when test="contains(@duration, 'm')">
-              <xsl:attribute name="time">
-                <xsl:value-of select="substring-before(@duration,'m')"/>e03</xsl:attribute>
-            </xsl:when>
-          </xsl:choose> 
-          
-
-          <!-- Provide Details (Stacktrace) for Failures -->
+          <!-- Provide Details (Stacktrace) in case of a Failure -->
           <xsl:choose>
             <xsl:when test="@result='Failed'">
               <xsl:element name="failure">
