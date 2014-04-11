@@ -1,0 +1,106 @@
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" indent="yes"/>
+  <xsl:template match="/">
+    <xsl:element name="testsuite">
+      
+      <xsl:attribute name="name">
+        <xsl:value-of select="//activity/@testsuitename"/>
+      </xsl:attribute>
+      
+      <xsl:attribute name="errors">
+        <xsl:value-of select="//activity/@totalerrorcount"/>
+      </xsl:attribute>
+      
+      <xsl:attribute name="failures">
+        <xsl:value-of select="//activity/@totalfailedcount"/>
+      </xsl:attribute>
+      
+      <xsl:attribute name="skipped">
+        <xsl:value-of select="//activity/@totalblockedcount"/>
+      </xsl:attribute>
+      
+      <xsl:attribute name="hostname">
+        <xsl:value-of select="//activity/@host"/>
+      </xsl:attribute>
+      
+      <xsl:attribute name="timestamp">
+        
+        <!-- The Ranorex Report will provide with a new field Isotimestamp starting with Version 5.0.2! -->
+        <!-- Meanwhile, the timestamp field is parsed to match ISO 08601-->
+        <!-- renzinger@ranorex.com -->
+        <!-- <xsl:value-of select="//activity/@isotimestamp"/>-->
+
+        <!-- ISO8601_DATETIME_PATTERN -->
+        <xsl:value-of select="concat(substring(//activity/@timestamp, 7,4), '-', substring(//activity/@timestamp, 4,2), '-', substring(//activity/@timestamp, 1,2), 'T',substring(//activity/@timestamp, 12,9))"/> 
+      </xsl:attribute>
+      
+      <xsl:attribute name="tests">
+        <xsl:value-of select="count(//activity[(@testcasename and not(@iterationcount) and @result!='Ignored')])"/>
+      </xsl:attribute>
+     
+      <xsl:attribute name="time">
+        <xsl:value-of select="substring(//activity/activity/@duration, 1, string-length(//activity/activity/@duration)-1)"/> 
+      </xsl:attribute>
+
+      <xsl:for-each select="//activity[@modulename]">
+        <xsl:element name="testcase">
+          <xsl:attribute name="classname">RanorexTestReport.<xsl:value-of select="ancestor::activity[@testcasename]/@testcasename"/>
+          </xsl:attribute>
+          <xsl:attribute name="name">
+            <xsl:value-of select="@modulename"/>
+          </xsl:attribute>
+
+          <!-- The Ranorex Report will provide with a new field DurMS (duration in ms) starting with Version 5.0.2! -->
+          <!-- Meanwhile the duration is parsed (not entirely) from ms, s, m to seconds --> 
+          <!-- renzinger@ranorex.com
+          <xsl:attribute name="time">
+            <xsl:choose>
+              <xsl:when test="string-length(@durms) &lt; 4" >
+                <xsl:value-of select="substring(@durms, 1,1)"></xsl:value-of>.<xsl:value-of select="substring(@durms, 2,string-length(@durms)-1)"></xsl:value-of>e-0<xsl:value-of select="4-string-length(@durms)"></xsl:value-of>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="substring(@durms, 1, string-length(@durms)-3)"></xsl:value-of>.<xsl:value-of select="substring(@durms, string-length(@durms)-2,3)"></xsl:value-of>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:attribute> -->
+            
+
+
+          <!-- Special Handling of Duration/Time -->
+          <!-- Convert to scientific notation for everything except for seconds -->
+          
+          <xsl:choose>
+            <xsl:when test="contains(@duration, 'ms')">
+              <xsl:attribute name="time">
+                <xsl:value-of select="substring(@duration, 1,1)"></xsl:value-of>.<xsl:value-of select="substring(@duration, 2,string-length(@duration)-3)"></xsl:value-of>e-0<xsl:value-of select="6-string-length(@duration)"></xsl:value-of>
+              </xsl:attribute>
+            </xsl:when>
+            <xsl:when test="contains(@duration, 's')">
+              <xsl:attribute name="time">
+                <xsl:value-of select="substring-before(@duration,'s')"/>
+              </xsl:attribute>
+            </xsl:when>
+            <xsl:when test="contains(@duration, 'm')">
+              <xsl:attribute name="time">
+                <xsl:value-of select="substring-before(@duration,'m')"/>e03</xsl:attribute>
+            </xsl:when>
+          </xsl:choose> 
+          
+
+          <!-- Provide Details (Stacktrace) for Failures -->
+          <xsl:choose>
+            <xsl:when test="@result='Failed'">
+              <xsl:element name="failure">
+                <xsl:attribute name="message">
+                  <xsl:value-of select="normalize-space(errmsg)"></xsl:value-of>
+                </xsl:attribute>
+                  <xsl:value-of select="normalize-space(//item/metainfo/@stacktrace)"></xsl:value-of>
+              </xsl:element>
+            </xsl:when>
+          </xsl:choose>
+
+        </xsl:element>
+      </xsl:for-each>
+    </xsl:element>
+  </xsl:template>
+</xsl:stylesheet>
