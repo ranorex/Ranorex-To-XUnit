@@ -62,7 +62,7 @@
                 <xsl:attribute name="message">
                   <xsl:value-of select="normalize-space(errmsg)"></xsl:value-of>
                 </xsl:attribute>
-                  <xsl:value-of select="normalize-space(//item/metainfo/@stacktrace)"></xsl:value-of>
+                  <xsl:value-of select="normalize-space(.//item/metainfo/@stacktrace)"></xsl:value-of>
               </xsl:element>
             </xsl:when>
           </xsl:choose>
