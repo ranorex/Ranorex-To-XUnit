@@ -8,19 +8,19 @@
       </xsl:attribute>
       
       <xsl:attribute name="errors">
-        <xsl:value-of select="//activity/@totalerrorcount"/>
+        <xsl:value-of select="*/activity/@totalerrorcount"/>
       </xsl:attribute>
       
       <xsl:attribute name="failures">
-        <xsl:value-of select="//activity/@totalfailedcount"/>
+        <xsl:value-of select="*/activity/@totalfailedcount"/>
       </xsl:attribute>
       
       <xsl:attribute name="skipped">
-        <xsl:value-of select="//activity/@totalblockedcount"/>
+        <xsl:value-of select="*/activity/@totalblockedcount"/>
       </xsl:attribute>
       
       <xsl:attribute name="hostname">
-        <xsl:value-of select="//activity/@host"/>
+        <xsl:value-of select="*/activity/@host"/>
       </xsl:attribute>
       
       <xsl:attribute name="timestamp">
@@ -41,7 +41,7 @@
           <xsl:attribute name="classname">RanorexTestReport.<xsl:value-of select="ancestor::activity[@testcasename]/@testcasename"/>
           </xsl:attribute>
           <xsl:attribute name="name">
-            <xsl:value-of select="@modulename"/>
+            <xsl:value-of select="normalize-space(@modulename)"/>
           </xsl:attribute>
 
           <xsl:attribute name="time">
