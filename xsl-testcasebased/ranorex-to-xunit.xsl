@@ -72,6 +72,9 @@
                 <xsl:attribute name="message">
                   <xsl:choose>
                   <xsl:when test="./activity[@result='Failed']/errmsg != ''">
+                      <xsl:text>Module </xsl:text>
+		      <xsl:value-of select="./activity[@modulename!='' and @result='Failed']/@modulename"></xsl:value-of> 
+		      <xsl:text> reports --> </xsl:text>
                       <xsl:value-of select="normalize-space(./activity[@result='Failed']/errmsg)"></xsl:value-of>  
                   </xsl:when>
                     <xsl:otherwise >
