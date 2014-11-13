@@ -1,5 +1,19 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="xml" indent="yes"/>
+
+  <!-- template for transforming durations in miliseconds (ms) to duration in seconds -->  
+  <xsl:template name="FormatDurationInMs">
+    <xsl:param name="ValueInMs" />
+    <xsl:choose>
+      <xsl:when test="string-length($ValueInMs) &lt; 4" >
+        <xsl:value-of select="substring($ValueInMs, 1,1)"></xsl:value-of>.<xsl:value-of select="substring($ValueInMs, 2,string-length($ValueInMs)-1)"></xsl:value-of>e-0<xsl:value-of select="4-string-length($ValueInMs)"></xsl:value-of>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="substring($ValueInMs, 1, string-length($ValueInMs)-3)"></xsl:value-of>.<xsl:value-of select="substring($ValueInMs, string-length($ValueInMs)-2,3)"></xsl:value-of>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+  
   <xsl:template match="/">
     <xsl:element name="testsuite">
       
@@ -33,13 +47,20 @@
       </xsl:attribute>
      
       <xsl:attribute name="time">
-        <xsl:value-of select="substring(//activity/activity/@duration, 1, string-length(//activity/activity/@duration)-1)"/> 
+        <xsl:call-template name="FormatDurationInMs">
+          <xsl:with-param name="ValueInMs" select="*/activity/activity/@durationms" />
+        </xsl:call-template>
       </xsl:attribute>
 
       <xsl:for-each select="//activity[@testcasename and not(@iterationcount)]">
         <xsl:element name="testcase">
+          
+          <!-- attribute classname -->
           <xsl:attribute name="classname">RanorexTestReport.<xsl:value-of select="@testcasename"/>
           </xsl:attribute>
+          
+          
+          <!-- attrbute name -->
           <xsl:attribute name="name">
             <xsl:choose>
               <xsl:when test="@iteration">
@@ -49,19 +70,23 @@
                   <xsl:value-of select="@testcasename"/>
               </xsl:otherwise>
             </xsl:choose>
-            
           </xsl:attribute>
-
+          
+          <!-- attribute time -->
           <xsl:attribute name="time">
             <xsl:choose>
-              <xsl:when test="string-length(@durationms) &lt; 4" >
-                <xsl:value-of select="substring(@durationms, 1,1)"></xsl:value-of>.<xsl:value-of select="substring(@durationms, 2,string-length(@durationms)-1)"></xsl:value-of>e-0<xsl:value-of select="4-string-length(@durationms)"></xsl:value-of>
+              <!-- Only for test cases on outer level because durations for each nested test case are being summed up -->
+              <xsl:when test="(@maxchildren='0') or (not (@iteration)) ">
+                <xsl:call-template name="FormatDurationInMs">
+                  <xsl:with-param name="ValueInMs" select="@durationms" />
+                </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:value-of select="substring(@durationms, 1, string-length(@durationms)-3)"></xsl:value-of>.<xsl:value-of select="substring(@durationms, string-length(@durationms)-2,3)"></xsl:value-of>
-              </xsl:otherwise>
+                <!-- 0 ms for nested test cases since duration is already included in duration of parent test case-->
+                <xsl:text>0</xsl:text>
+                </xsl:otherwise>
             </xsl:choose>
-          </xsl:attribute>            
+          </xsl:attribute>        
 
           
           <xsl:choose>
