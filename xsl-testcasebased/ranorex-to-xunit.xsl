@@ -25,7 +25,7 @@
       
       <xsl:attribute name="timestamp">
         <!-- ISO8601_DATETIME_PATTERN -->
-        <xsl:value-of select="//activity/@isotimestamp"/>
+        <xsl:value-of select="//activity/@timestampiso"/>
       </xsl:attribute>
       
       <xsl:attribute name="tests">
