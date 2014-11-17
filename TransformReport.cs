@@ -66,21 +66,24 @@ namespace Ranorex.Module
             		currentNode.ParentNode.RemoveChild(currentNode);
 
             	// Save report to stream
-            	System.IO.MemoryStream stream= new System.IO.MemoryStream();
-        		  xmlDoc.Save (stream);
-            	
-            	// Lad the style sheet
-            	System.Xml.Xsl.XslCompiledTransform xslTrans = new System.Xml.Xsl.XslCompiledTransform();
-		xslTrans.Load(xslFile);
-
-    		// Perform Transformation
-    		stream.Position =0;
-    		System.Xml.XmlReader reader = System.Xml.XmlReader.Create(stream);				 
-    		System.Xml.XmlWriter writer = System.Xml.XmlWriter.Create(xUnitFile);
-      		xslTrans.Transform(reader, null, writer);
-      			    
-      		Ranorex.Report.Info(string.Format("Transformed Report File to xUnit-Report: {0}", xUnitFile));
-
+		        using (System.IO.MemoryStream stream= new System.IO.MemoryStream())
+            	{
+	        		xmlDoc.Save (stream);
+	            	
+	            	// Lad the style sheet
+	            	System.Xml.Xsl.XslCompiledTransform xslTrans = new System.Xml.Xsl.XslCompiledTransform();
+					xslTrans.Load(xslFile);
+	
+		    		// Perform Transformation
+		    		stream.Position =0;
+		    		using (System.Xml.XmlReader reader= System.Xml.XmlReader.Create(stream))
+			    	{
+			    		System.Xml.XmlWriter writer = new System.Xml.XmlTextWriter(xUnitFile, new UTF8Encoding(false)); 
+			    		writer.WriteStartDocument();
+			      		xslTrans.Transform(reader, null, writer);
+			    	}
+            	}
+            	Ranorex.Report.Info(string.Format("Transformed Report File to xUnit-Report: {0}", xUnitFile));
             }
             else
             {
