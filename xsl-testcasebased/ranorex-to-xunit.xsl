@@ -54,6 +54,8 @@
 
       <xsl:for-each select="//activity[((@testcasename) or (@type='test case setup') or (@type='test case teardown')) and not(@iterationcount)]">
 
+        <xsl:choose>
+
         <xsl:when test="parent::activity[@testcasename]">
             <!-- Do not report Setup/Teardown if this container is child of test case because test case itself does report the issue
                  Just only report global Setup/Teardown -->
