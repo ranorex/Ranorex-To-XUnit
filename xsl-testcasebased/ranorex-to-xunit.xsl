@@ -43,7 +43,9 @@
       </xsl:attribute>
       
       <xsl:attribute name="tests">
-        <xsl:value-of select="count(//activity[(@testcasename and not(@iterationcount) and @result!='Ignored')])"/>
+     
+        <xsl:value-of select="count(//activity[(@testcasename and @result!='Ignored' and not (parent::activity[@testcasename]))])"/>
+        <!-- count test cases on outer level only / do not count setup, teardown, nested test cases or iterations  -->
       </xsl:attribute>
      
       <xsl:attribute name="time">
@@ -52,15 +54,9 @@
         </xsl:call-template>
       </xsl:attribute>
 
-      <xsl:for-each select="//activity[((@testcasename) or (@type='test case setup') or (@type='test case teardown')) and not(@iterationcount)]">
-
-        <xsl:choose>
-
-        <xsl:when test="parent::activity[@testcasename]">
-            <!-- Do not report Setup/Teardown if this container is child of test case because test case itself does report the issue
-                 Just only report global Setup/Teardown -->
-        </xsl:when>
-        <xsl:otherwise>
+      <xsl:for-each select="//activity[((@testcasename) or (@type='test case setup') or (@type='test case teardown')) and not (parent::activity[@testcasename])  ]">
+        
+        <!-- Iterate over all test cases on outer level only / do not report nested test cases or iterations-->
 
             <xsl:element name="testcase">
               <xsl:choose>
@@ -164,9 +160,6 @@
 
             </xsl:element>
 
-          </xsl:otherwise>
-          </xsl:choose>
-            
       </xsl:for-each>
     </xsl:element>
   </xsl:template>
