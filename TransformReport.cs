@@ -56,7 +56,7 @@ namespace Ranorex.Module
 
             	var item = Ranorex.Core.Reporting.ActivityStack.Instance.RootActivity;
             	string documentStr;
-            	using (var ms = new MemoryStream())
+            	using (var ms = new System.IO.MemoryStream())
 		{
             		var sw = new StreamWriter(ms, new UTF8Encoding(false));
 		 	var xmlPrinter = XmlPrinter.BeginDocument(sw, false);
