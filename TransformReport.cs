@@ -17,7 +17,6 @@ using WinForms = System.Windows.Forms;
 using Ranorex;
 using Ranorex.Core;
 using Ranorex.Core.Testing;
-
 using Ranorex.Core.FastXml;
 using System.Xml;
 
@@ -55,10 +54,18 @@ namespace Ranorex.Module
             if (System.IO.File.Exists (xslFile))
             {
 
-            	// Load the report in XML-Format from ActivityStack
-            	XmlDoc aDoc = new XmlDoc("Root", false);
-            	XmlDocument xmlDoc = new XmlDocument ();
-            	xmlDoc.LoadXml(Ranorex.Core.Reporting.ActivityStack.Instance.RootActivity.ToXmlNode (aDoc).ToXmlString());
+            	var item = Ranorex.Core.Reporting.ActivityStack.Instance.RootActivity;
+            	string documentStr;
+            	using (var ms = new MemoryStream())
+		{
+            		var sw = new StreamWriter(ms, new UTF8Encoding(false));
+		 	var xmlPrinter = XmlPrinter.BeginDocument(sw, false);
+	 		xmlPrinter.Print(item).CompleteDocument();
+	 	 	documentStr = new UTF8Encoding(false).GetString(ms.ToArray());
+		}
+				            	
+            	XmlDocument xmlDoc = new XmlDocument ();           	
+            	xmlDoc.LoadXml (documentStr);
             	
             	// Delete Log-Information from current Module (based on GUID)
             	System.Xml.XmlNode currentNode = xmlDoc.SelectSingleNode("//activity[@moduleid=\"25e35ae4-d8c4-4860-a845-f7e92a3cf742\"]");
@@ -66,22 +73,22 @@ namespace Ranorex.Module
             		currentNode.ParentNode.RemoveChild(currentNode);
 
             	// Save report to stream
-		        using (System.IO.MemoryStream stream= new System.IO.MemoryStream())
+		using (System.IO.MemoryStream stream= new System.IO.MemoryStream())
             	{
 	        		xmlDoc.Save (stream);
 	            	
-	            	// Lad the style sheet
+	            	// Load the style sheet
 	            	System.Xml.Xsl.XslCompiledTransform xslTrans = new System.Xml.Xsl.XslCompiledTransform();
-					xslTrans.Load(xslFile);
+			xslTrans.Load(xslFile);
 	
-		    		// Perform Transformation
-		    		stream.Position =0;
-		    		using (System.Xml.XmlReader reader= System.Xml.XmlReader.Create(stream))
-			    	{
-			    		System.Xml.XmlWriter writer = new System.Xml.XmlTextWriter(xUnitFile, new UTF8Encoding(false)); 
-			    		writer.WriteStartDocument();
-			      		xslTrans.Transform(reader, null, writer);
-			    	}
+	    		// Perform Transformation
+	    		stream.Position =0;
+	    		using (System.Xml.XmlReader reader= System.Xml.XmlReader.Create(stream))
+		    	{
+		    		System.Xml.XmlWriter writer = new System.Xml.XmlTextWriter(xUnitFile, new UTF8Encoding(false)); 
+		    		writer.WriteStartDocument();
+		      		xslTrans.Transform(reader, null, writer);
+		    	}
             	}
             	Ranorex.Report.Info(string.Format("Transformed Report File to xUnit-Report: {0}", xUnitFile));
             }
