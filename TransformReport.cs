@@ -58,7 +58,7 @@ namespace Ranorex.Module
             	string documentStr;
             	using (var ms = new System.IO.MemoryStream())
 		{
-            		var sw = new StreamWriter(ms, new UTF8Encoding(false));
+            		var sw = new System.IO.StreamWriter(ms, new UTF8Encoding(false));
 		 	var xmlPrinter = XmlPrinter.BeginDocument(sw, false);
 	 		xmlPrinter.Print(item).CompleteDocument();
 	 	 	documentStr = new UTF8Encoding(false).GetString(ms.ToArray());
@@ -75,7 +75,7 @@ namespace Ranorex.Module
             	// Save report to stream
 		using (System.IO.MemoryStream stream= new System.IO.MemoryStream())
             	{
-	        		xmlDoc.Save (stream);
+	        	xmlDoc.Save (stream);
 	            	
 	            	// Load the style sheet
 	            	System.Xml.Xsl.XslCompiledTransform xslTrans = new System.Xml.Xsl.XslCompiledTransform();
