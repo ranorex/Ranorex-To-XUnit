@@ -17,7 +17,7 @@ using WinForms = System.Windows.Forms;
 using Ranorex;
 using Ranorex.Core;
 using Ranorex.Core.Testing;
-using Ranorex.Core.FastXml;
+using Ranorex.Libs.Xml;
 using System.Xml;
 
 namespace Ranorex.Module
