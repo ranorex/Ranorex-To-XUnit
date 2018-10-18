@@ -1,3 +1,5 @@
+# _THIS REPOSITORY IS DEPRECATED_
+
 ranorex-to-xunit
 ================
 
